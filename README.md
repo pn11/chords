@@ -2,6 +2,8 @@
 
 ギターのコード譜置き場とビューア。GitHub Pages で公開し、スマホでもオフラインで見られる（PWA）。
 
+**サイト: https://pn11.github.io/chords/**
+
 ## 曲の書き方
 
 `songs/` に 1 曲 1 ファイルの Markdown（`.md`）を置く。push すると曲一覧が自動で更新される。
@@ -54,7 +56,7 @@ D/F# = 2x0232
 
 1. リポジトリを public にする（Settings → General → Danger Zone → Change visibility）
 2. Settings → Pages → Build and deployment → Source を **GitHub Actions** にする
-3. デフォルトブランチに push すると `.github/workflows/pages.yml` が動き、`https://<ユーザー名>.github.io/chords/` に公開される
+3. デフォルトブランチ（main）に push すると `.github/workflows/pages.yml` が動き、https://pn11.github.io/chords/ に公開される
 
 ワークフローは、テスト、`songs.json`（曲一覧）の生成、Pages へのデプロイを行う。`songs.json` はコミットしない。
 
