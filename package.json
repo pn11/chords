@@ -1,0 +1,10 @@
+{
+  "name": "chords",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-site.mjs",
+    "test": "node --test",
+    "serve": "node scripts/build-site.mjs && python3 -m http.server 8000 -d _site"
+  }
+}

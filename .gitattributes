@@ -1,2 +1,1 @@
-*.cho text eol=lf
-*.cho linguist-language=Text
+*.md text eol=lf

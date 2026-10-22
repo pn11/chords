@@ -1,55 +1,77 @@
 # chords
 
-コード譜置き場。
+ギターのコード譜置き場とビューア。GitHub Pages で公開し、スマホでもオフラインで見られる（PWA）。
+
+## 曲の書き方
+
+`songs/` に 1 曲 1 ファイルの Markdown（`.md`）を置く。push すると曲一覧が自動で更新される。
+
+```
+# 曲名
+artist: アーティスト
+key: G  capo: 2
+
+## Intro
+| G | Em | C D | G |
+
+## A
+| G | Em | C | D |
+| G | Em | C D | G | x2
+> 2回目はミュート
+
+D/F# = 2x0232
+```
+
+| 書き方 | 意味 |
+| --- | --- |
+| `# 曲名` | タイトル |
+| `key: G  capo: 2` | 曲の情報。「名前: 値」を空白2つ以上で区切って並べる。`key` / `capo` / `artist` / `tempo` など何でも可。`key` は移調表示に使う |
+| `## セクション名` | Intro, A, B, サビ など |
+| `\| C \| Am \| F G \| C \|` | 小節ごとのコード。1小節に複数あれば拍を均等に分ける |
+| `%` | 前の小節と同じ |
+| `x2`（行末） | その行を繰り返す |
+| `> メモ` | メモ |
+| `D/F# = 2x0232` | 押さえ方の指定。6弦→1弦の順、`x` はミュート。2桁のフレットがあるときは `x 10 12 12 11 10` のように空白で区切る |
+
+- コード名の表記ゆれ（`M7` / `maj7` / `△7`、`m7-5` / `m7b5` など）はある程度吸収する
+- `N.C.` などコードとして読めないものは、そのまま文字で表示する
+
+ファイル名は英数字とハイフン推奨（例: `songs/artist-title.md`）。URL は `#/song/artist-title` になる。
+
+## ビューアの機能
+
+- 曲一覧と検索（曲名・アーティスト・キー）
+- セクションごとの小節グリッド
+- 移調（♭ / ♯。曲ごとに記憶）、文字サイズ（A− / A＋）
+- 自動スクロール（− / ▶ / ＋）
+- 画面の消灯を防ぐ（☀。自動スクロール中は自動でオン）
+- コードダイヤグラム：曲で使うコードの一覧と、コードをタップしてのポップアップ表示（‹ › で別の押さえ方）
+  - 押さえ方は曲内の指定を優先し、なければ [chords-db](https://github.com/tombatossals/chords-db) から引く
+  - 辞書にない分数コードは、元のコードの低音を差し替えて作る
+- オフライン表示（一度開いた端末では、全曲をキャッシュする）
+
+## 公開の設定（最初の1回）
+
+1. リポジトリを public にする（Settings → General → Danger Zone → Change visibility）
+2. Settings → Pages → Build and deployment → Source を **GitHub Actions** にする
+3. デフォルトブランチに push すると `.github/workflows/pages.yml` が動き、`https://<ユーザー名>.github.io/chords/` に公開される
+
+ワークフローは、テスト、`songs.json`（曲一覧）の生成、Pages へのデプロイを行う。`songs.json` はコミットしない。
+
+## 手元で確認する
+
+```sh
+npm test          # パーサなどのテスト
+npm run serve     # _site/ を組み立てて http://localhost:8000 で表示
+```
 
 ## 構成
 
 ```
-songs/       コード譜本体（1曲1ファイル）
-templates/   新規作成用テンプレート
-```
-
-## 書式
-
-[ChordPro](https://www.chordpro.org/) 形式（拡張子 `.cho`）で書く。
-歌詞の中に `[コード]` を埋め込むだけのプレーンテキストなので、どのエディタでも書けて、
-ChordPro 対応アプリ（ChordPro CLI, OnSong, SongbookPro など）でそのまま表示・PDF化できる。
-
-```
-{title: 曲名}
-{artist: アーティスト}
-{key: C}
-
-{start_of_verse}
-[C]歌詞の[F]途中で[G]コードが[C]変わる
-{end_of_verse}
-```
-
-よく使うディレクティブ:
-
-| ディレクティブ | 意味 |
-| --- | --- |
-| `{title: }` / `{artist: }` | 曲名 / アーティスト |
-| `{key: }` / `{capo: }` / `{tempo: }` | キー / カポ / テンポ |
-| `{start_of_verse}` … `{end_of_verse}` | Aメロなど |
-| `{start_of_chorus}` … `{end_of_chorus}` | サビ |
-| `{start_of_bridge}` … `{end_of_bridge}` | 間奏・Cメロ |
-| `{comment: }` | 注釈（「×2」など） |
-
-## ファイル名
-
-`songs/アーティスト名-曲名.cho`（英数字・ハイフン推奨。日本語でも可）
-
-## 新しい曲を追加する
-
-```sh
-cp templates/song.cho songs/artist-title.cho
-```
-
-## PDF にする（任意）
-
-```sh
-# ChordPro CLI: https://www.chordpro.org/chordpro/chordpro-installation/
-chordpro songs/artist-title.cho -o artist-title.pdf
-chordpro --transpose=2 songs/artist-title.cho   # 移調
+songs/*.md               曲
+index.html, assets/      ビューア（ビルド不要の素の HTML/JS/CSS）
+sw.js, manifest.webmanifest  PWA
+data/guitar-chords.json  コードの押さえ方の辞書（chords-db を変換したもの, MIT）
+scripts/build-site.mjs   公開用サイトの組み立てと songs.json の生成
+scripts/build-chord-db.mjs  chords-db からの辞書の再生成
 ```
