@@ -1,0 +1,16 @@
+{title: 曲名}
+{artist: アーティスト}
+{key: C}
+{capo: 0}
+{tempo: 120}
+
+{start_of_verse: Aメロ}
+[C]ここに歌詞を[Am]書いて
+[F]コードを角括弧で[G]埋め込む
+{end_of_verse}
+
+{start_of_chorus}
+[F]サビの[G]歌詞[C]
+{end_of_chorus}
+
+{comment: 間奏 | C | Am | F | G |}
