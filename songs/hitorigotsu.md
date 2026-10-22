@@ -8,6 +8,8 @@ capo: 2
 ## B
 | Em | Am | F | D | G |
 | C E | Am | F | G | C |
+
+## C
 | A# Am | A# Am | G# | A# |
 | Em F | Dm G | Em F | Dm G |
 | Em F | Dm | G | F |
