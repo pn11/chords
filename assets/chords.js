@@ -131,6 +131,14 @@ function lookupDb(name) {
   return base.map((s) => withBass(s, c.bass)).filter(Boolean);
 }
 
+/** 同じコードを同じ値にする（"A#M7" と "Bbmaj7" など）。「覚えたコード」の記録に使う。 */
+export function chordId(name) {
+  const c = parseChord(name);
+  if (!c) return name;
+  const suffix = SUFFIX_ALIASES[c.quality] ?? c.quality;
+  return c.bass === null || c.bass === c.root ? `${c.root}:${suffix}` : `${c.root}:${suffix}/${c.bass}`;
+}
+
 /** ダイヤグラムの SVG 文字列 */
 export function diagramSvg(shape) {
   const strings = 6;

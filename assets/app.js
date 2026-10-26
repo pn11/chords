@@ -1,5 +1,5 @@
 import { parseSong, isChord, chordsInSong, transposeChord, transposeKey, keyUsesFlats } from './parser.js';
-import { loadChordDb, findShapes, diagramSvg, fretsLabel } from './chords.js';
+import { loadChordDb, findShapes, diagramSvg, fretsLabel, chordId } from './chords.js';
 
 const SONG_CACHE = 'songs';
 const SCROLL_SPEEDS = [8, 12, 16, 22, 30, 40, 55, 75, 100]; // px/秒
@@ -144,16 +144,25 @@ function renderSong() {
     .join('');
 
   const chords = chordsInSong(song);
+  const known = chords.filter((orig) => isKnown(name(orig)));
   const strip = chords
+    .filter((orig) => !isKnown(name(orig)))
     .map((orig) => {
-      const shown = name(orig);
       const shape = shapesFor(orig)[0];
-      return `<button class="chord-card" data-chord="${esc(orig)}">
-        <div class="name">${esc(shown)}</div>
-        ${shape ? diagramSvg(shape) : '<div class="none">押さえ方なし</div>'}
-      </button>`;
+      return `<div class="chord-card">
+        <button data-chord="${esc(orig)}">
+          <div class="name">${esc(name(orig))}</div>
+          ${shape ? diagramSvg(shape) : '<div class="none">押さえ方なし</div>'}
+        </button>
+        <button class="mark-known" data-known="${esc(orig)}">覚えた</button>
+      </div>`;
     })
     .join('');
+  const knownList = known.length
+    ? `<div class="known-chords">覚えたコード ${known
+        .map((orig) => `<button data-chord="${esc(orig)}">${esc(name(orig))}</button>`)
+        .join('')}</div>`
+    : '';
 
   const sections = song.sections
     .map((section) => {
@@ -172,6 +181,7 @@ function renderSong() {
   main.innerHTML = `
     ${meta ? `<div class="song-meta">${meta}</div>` : ''}
     ${strip ? `<div class="chord-strip">${strip}</div>` : ''}
+    ${knownList}
     ${sections}`;
 
   fitBeats();
@@ -227,13 +237,29 @@ function shapesFor(orig) {
   return findShapes(chordNamer()(orig), { defs: song.defs, original: orig, transpose });
 }
 
+// ---------- 覚えたコード ----------
+// 覚えたコードは一覧のダイヤグラムを出さず、名前だけ並べる。全曲共通で、この端末に記録する。
+// 移調後の名前で判定するので、移調して覚えていないコードになれば押さえ方が出る。
+
+let knownChords = new Set(store.get('knownChords', []));
+
+const isKnown = (shown) => knownChords.has(chordId(shown));
+
+function setKnown(shown, value) {
+  if (value) knownChords.add(chordId(shown));
+  else knownChords.delete(chordId(shown));
+  store.set('knownChords', [...knownChords]);
+}
+
 // ---------- コードのポップアップ ----------
 
 const dialog = $('#chord-dialog');
 let dlgShapes = [];
 let dlgIndex = 0;
+let dlgChord = null;
 
 function openChord(orig) {
+  dlgChord = orig;
   $('#dlg-name').textContent = chordNamer()(orig);
   dlgShapes = shapesFor(orig);
   dlgIndex = 0;
@@ -241,11 +267,22 @@ function openChord(orig) {
   dialog.showModal();
 }
 
+$('#dlg-known').addEventListener('click', () => {
+  const shown = chordNamer()(dlgChord);
+  setKnown(shown, !isKnown(shown));
+  renderDialog();
+  renderSong();
+});
+
 function renderDialog() {
   const shape = dlgShapes[dlgIndex];
   $('#dlg-body').innerHTML = shape
     ? `${diagramSvg(shape)}<div class="frets">${fretsLabel(shape.frets)}</div>`
     : '<div class="none">押さえ方が見つかりません。<br>曲ファイルに「コード名 = x32010」の形で書けます。</div>';
+  const known = isKnown(chordNamer()(dlgChord));
+  const knownBtn = $('#dlg-known');
+  knownBtn.textContent = known ? '✓ 覚えた（押さえ方を一覧に戻す）' : '覚えた（一覧に押さえ方を出さない）';
+  knownBtn.setAttribute('aria-pressed', String(known));
   const many = dlgShapes.length > 1;
   $('.dlg-nav').hidden = !many;
   $('#dlg-count').textContent = many ? `${dlgIndex + 1} / ${dlgShapes.length}` : '';
@@ -264,6 +301,12 @@ dialog.addEventListener('click', (e) => {
 });
 
 main.addEventListener('click', (e) => {
+  const mark = e.target.closest('[data-known]');
+  if (mark) {
+    setKnown(chordNamer()(mark.dataset.known), true);
+    renderSong();
+    return;
+  }
   const el = e.target.closest('[data-chord]');
   if (el) openChord(el.dataset.chord);
 });

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { parseSong, parseChord, transposeChord, transposeKey, chordsInSong } from '../assets/parser.js';
-import { loadChordDb, findShapes } from '../assets/chords.js';
+import { loadChordDb, findShapes, chordId } from '../assets/chords.js';
 
 const EXAMPLE = `# 曲名
 key: G  capo: 2
@@ -86,4 +86,12 @@ test('押さえ方の検索', async () => {
   const odd = { Gx: [3, -1, 0, 0, 3, 3] };
   assert.equal(findShapes('Gx', { defs: odd })[0].frets[0], 3);
   assert.equal(findShapes('Hx', { defs: {} }).length, 0);
+});
+
+test('覚えたコードの判定に使う ID は表記ゆれを吸収する', () => {
+  assert.equal(chordId('A#M7'), chordId('Bbmaj7'));
+  assert.equal(chordId('Am'), chordId('Amin'));
+  assert.notEqual(chordId('Am'), chordId('A'));
+  assert.notEqual(chordId('D/F#'), chordId('D'));
+  assert.equal(chordId('C/C'), chordId('C'));
 });
