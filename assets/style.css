@@ -221,7 +221,26 @@ button.beat {
 }
 button.beat:active { background: var(--accent-soft); }
 .beat.text { color: var(--muted); font-weight: 400; }
-.simile { color: var(--muted); font-weight: 400; text-align: center; }
+/* % の小節: 繰り返し記号を大きく出し、弾くコードを小さく添える */
+.bar.simile { justify-content: center; gap: 6px; }
+.simile-mark {
+  width: calc(var(--chord-size) * 1.05);
+  height: calc(var(--chord-size) * 1.05);
+  flex: none;
+  stroke: currentColor;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  fill: currentColor;
+}
+.simile-chord {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: calc(var(--chord-size) * .55);
+}
 .repeat {
   align-self: center;
   padding-left: 6px;
