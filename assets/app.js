@@ -164,7 +164,7 @@ function renderSong() {
         .join('')}</div>`
     : '';
 
-  const ctx = { prev: null }; // % の小節に「何を弾くか」を添えるため、直前の小節を覚えておく
+  const ctx = { prev: null }; // % の小節のために、直前の小節を覚えておく
   const sections = song.sections
     .map((section) => {
       const rows = section.items.filter((i) => i.type === 'row');
@@ -213,19 +213,11 @@ window.addEventListener('resize', () => {
   resizeTimer = setTimeout(() => current && fitBeats(), 150);
 });
 
-// 小節の繰り返し記号（斜線と2つの点）
-const SIMILE_SVG =
-  '<svg class="simile-mark" viewBox="0 0 24 24" aria-hidden="true">' +
-  '<line x1="5" y1="20" x2="19" y2="4"/><circle cx="6.5" cy="7" r="2.6"/><circle cx="17.5" cy="17" r="2.6"/></svg>';
-
 function renderRow(row, cols, repeatCol, name, ctx) {
   const cells = row.bars.map((bar, i) => {
     const last = i === row.bars.length - 1 ? ' last' : '';
-    if (bar.simile) {
-      const played = ctx.prev?.filter(isChord).map(name).join(' ') ?? '';
-      return `<div class="bar simile${last}" aria-label="前の小節と同じ${played ? `（${esc(played)}）` : ''}">
-        ${SIMILE_SVG}${played ? `<span class="simile-chord">${esc(played)}</span>` : ''}</div>`;
-    }
+    // % は直前の小節のコードをそのまま書く
+    if (bar.simile) bar = { chords: ctx.prev ?? [] };
     ctx.prev = bar.chords;
     const beats = bar.chords.length
       ? bar.chords
