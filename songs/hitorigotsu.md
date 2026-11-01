@@ -12,5 +12,5 @@ capo: 2
 ## C
 | A# Am | A# Am | G# | A# |
 | Em F | Dm G | Em F | Dm G |
-| Em F | Dm | G | F |
+| Em F | Dm G | F |
 | F | G | C |
