@@ -3,6 +3,12 @@
 ## Verse
 | B | D#7 | EM7 | D#m | EM7 | D#m | C#m | C#m F# D#m C#m | D#m | x2
 
+## Bridge
+| G#m | D#m | G#m | D#m | G#m | D#m | C#m D#m | E7 F#7 | Bm |
+
+## Instrumental
+| G | F# | Bm |
+
 ## Riff
 e|-----------------------------|
 B|-----------------------------|
