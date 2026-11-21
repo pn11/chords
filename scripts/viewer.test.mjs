@@ -95,3 +95,29 @@ test('覚えたコードの判定に使う ID は表記ゆれを吸収する', (
   assert.notEqual(chordId('D/F#'), chordId('D'));
   assert.equal(chordId('C/C'), chordId('C'));
 });
+
+test('タブ譜', () => {
+  const song = parseSong(`## Riff
+e|-------|
+B|-------|
+G|-------| x4
+D|-----0-|
+A|---2---|
+E|-3-----|
+
+e|-------|
+E|-3-----|
+> メモ
+\`\`\`tab
+  1 & 2 &
+E|-0-----|
+\`\`\`
+| E | A |`);
+  const items = song.sections[0].items;
+  assert.deepEqual(items.map((i) => i.type), ['tab', 'tab', 'note', 'tab', 'row']);
+  assert.equal(items[0].lines.length, 6);
+  assert.equal(items[0].lines[2], 'G|-------| x4');
+  assert.deepEqual(items[3].lines, ['  1 & 2 &', 'E|-0-----|']);
+  // コード進行の行やメタ情報はタブ譜にならない
+  assert.equal(parseSong('key: E\n| E | A |').sections[0].items[0].type, 'row');
+});

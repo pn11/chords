@@ -168,11 +168,15 @@ function renderSong() {
   const sections = song.sections
     .map((section) => {
       const rows = section.items.filter((i) => i.type === 'row');
-      const cols = Math.max(1, ...rows.map((r) => r.bars.length));
+      const cols = Math.min(maxCols(), Math.max(1, ...rows.map((r) => r.bars.length)));
       const repeatCol = rows.some((r) => r.repeat > 1);
       const body = section.items
         .map((item) =>
-          item.type === 'note' ? `<div class="note">${esc(item.text)}</div>` : renderRow(item, cols, repeatCol, name, ctx),
+          item.type === 'note'
+            ? `<div class="note">${esc(item.text)}</div>`
+            : item.type === 'tab'
+              ? `<pre class="tab">${esc(item.lines.join('\n'))}</pre>`
+              : renderRow(item, cols, repeatCol, name, ctx),
         )
         .join('');
       return `<section class="section">${section.name ? `<h2>${esc(section.name)}</h2>` : ''}${body}</section>`;
@@ -207,15 +211,23 @@ function fitBeats() {
   }
 }
 
+// 1行に並べる小節数の上限。長い行は折り返す（スマホでは4小節）
+const maxCols = () => (window.innerWidth < 600 ? 4 : 8);
+
 let resizeTimer = null;
+let lastMaxCols = maxCols();
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => current && fitBeats(), 150);
+  resizeTimer = setTimeout(() => {
+    if (!current) return;
+    if (maxCols() !== lastMaxCols) renderSong();
+    else fitBeats();
+    lastMaxCols = maxCols();
+  }, 150);
 });
 
 function renderRow(row, cols, repeatCol, name, ctx) {
-  const cells = row.bars.map((bar, i) => {
-    const last = i === row.bars.length - 1 ? ' last' : '';
+  const cells = row.bars.map((bar) => {
     // % は直前の小節のコードをそのまま書く
     if (bar.simile) bar = { chords: ctx.prev ?? [] };
     ctx.prev = bar.chords;
@@ -228,11 +240,19 @@ function renderRow(row, cols, repeatCol, name, ctx) {
           )
           .join('')
       : '<div class="beat"></div>';
-    return `<div class="bar${last}">${beats}</div>`;
+    return `<div class="bar">${beats}</div>`;
   });
-  for (let i = row.bars.length; i < cols; i++) cells.push('<div class="bar pad"></div>');
-  if (repeatCol) cells.push(row.repeat > 1 ? `<div class="repeat">×${row.repeat}</div>` : '<div></div>');
-  return `<div class="row${repeatCol ? ' has-repeat' : ''}" style="--cols:${cols}">${cells.join('')}</div>`;
+  // cols を超える行は折り返し、繰り返しの印は最後の段にだけ付ける
+  const lines = [];
+  for (let i = 0; i < cells.length; i += cols) lines.push(cells.slice(i, i + cols));
+  return lines
+    .map((line, i) => {
+      const lastLine = i === lines.length - 1;
+      while (line.length < cols) line.push('<div class="bar pad"></div>');
+      if (repeatCol) line.push(lastLine && row.repeat > 1 ? `<div class="repeat">×${row.repeat}</div>` : '<div></div>');
+      return `<div class="row${repeatCol ? ' has-repeat' : ''}${lastLine ? '' : ' wrapped'}" style="--cols:${cols}">${line.join('')}</div>`;
+    })
+    .join('');
 }
 
 function shapesFor(orig) {

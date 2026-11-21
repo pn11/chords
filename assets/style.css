@@ -186,6 +186,7 @@ main {
   gap: 5px;
   margin-bottom: 5px;
 }
+.row.wrapped { margin-bottom: 3px; }
 .row.has-repeat { grid-template-columns: repeat(var(--cols), minmax(0, 1fr)) 2.4em; }
 /* 1小節 = 1つの箱 */
 .bar {
@@ -227,6 +228,18 @@ button.beat:active { background: var(--accent-soft); }
   font-weight: 700;
   color: var(--accent);
   font-size: calc(var(--chord-size) * .6);
+}
+/* タブ譜: 等幅でそのまま。はみ出す分は横スクロール */
+.tab {
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1.5px solid var(--bar-line);
+  border-radius: 6px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Noto Sans Mono", monospace;
+  font-size: max(13px, calc(var(--chord-size) * .55));
+  line-height: 1.35;
 }
 .note {
   margin: 4px 0 8px;

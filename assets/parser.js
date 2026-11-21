@@ -11,6 +11,8 @@ const CHORD_RE = /^([A-G])([#b♯♭]?)((?:6\/9|[^/])*)(?:\/([A-G])([#b♯♭]?)
 const META_KEY_RE = /(?:^|\s)([A-Za-z_぀-ヿ一-鿿][\w\-぀-ヿ一-鿿]*)\s*:\s*/g;
 const DEF_RE = /^(\S+)\s*=\s*([0-9xX][0-9xX\s]*)$/;
 const REPEAT_RE = /\|\s*[xX×](\d+)\s*$/;
+// タブ譜の行（"e|---0---|", "E |-3-" など）
+const TAB_LINE_RE = /^[A-Ga-g][#b]?\s*\|[-0-9a-z|()\/\\~^.*<>\s]*[-0-9]/;
 
 /**
  * 曲ファイルのテキストを解析する。
@@ -19,6 +21,7 @@ const REPEAT_RE = /\|\s*[xX×](\d+)\s*$/;
  *   Row = { type: 'row', bars: Bar[], repeat: number }
  *   Bar = { chords: string[] } | { simile: true }
  *   Note = { type: 'note', text }
+ *   Tab = { type: 'tab', lines: string[] }  タブ譜（そのまま等幅で表示する）
  */
 export function parseSong(text) {
   const song = { title: '', meta: {}, sections: [], defs: {} };
@@ -31,8 +34,32 @@ export function parseSong(text) {
     return section;
   };
 
+  let tab = null; // 書きかけのタブ譜
+  let fenced = false; // ``` で囲まれたタブ譜の中か
+
   for (const raw of text.split(/\r?\n/)) {
     const line = raw.trim();
+    // ``` で囲んだ部分は、中身をそのままタブ譜として扱う
+    if (/^```/.test(line)) {
+      fenced = !fenced;
+      tab = fenced ? { type: 'tab', lines: [] } : null;
+      if (fenced) current().items.push(tab);
+      continue;
+    }
+    if (fenced) {
+      tab.lines.push(raw.replace(/\s+$/, ''));
+      continue;
+    }
+    // 囲まなくても、弦名で始まる行が続けばタブ譜とみなす（空行で区切る）
+    if (TAB_LINE_RE.test(line)) {
+      if (!tab) {
+        tab = { type: 'tab', lines: [] };
+        current().items.push(tab);
+      }
+      tab.lines.push(line);
+      continue;
+    }
+    tab = null;
     if (!line) continue;
     let m;
     if ((m = line.match(/^#\s+(.+)$/))) {
