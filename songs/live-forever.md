@@ -4,7 +4,7 @@
 | G | D | Am | C D | x2
 
 ## Chorus
-| D | Am | C | D Em | Em | D | Em | Fadd9 |
+| Em | D | Am | C D Em | Em | D | Am | Fadd9 |
 
 ## Solo
 ```tab
