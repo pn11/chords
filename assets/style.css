@@ -104,6 +104,8 @@ main {
 .song-list .artist { display: block; font-weight: 400; font-size: 14px; color: var(--muted); }
 .song-list .key { font-size: 14px; color: var(--muted); white-space: nowrap; }
 .empty { color: var(--muted); padding: 24px 4px; }
+.source-link { margin: 32px 0 0; font-size: 14px; text-align: center; }
+.source-link a { color: var(--muted); }
 
 /* 曲 */
 .song-meta {

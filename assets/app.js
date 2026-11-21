@@ -2,6 +2,7 @@ import { parseSong, isChord, chordsInSong, transposeChord, transposeKey, keyUses
 import { loadChordDb, findShapes, diagramSvg, fretsLabel, chordId } from './chords.js';
 
 const SONG_CACHE = 'songs';
+const REPO_URL = 'https://github.com/pn11/chords';
 const SCROLL_SPEEDS = [8, 12, 16, 22, 30, 40, 55, 75, 100]; // px/秒
 const FONT_MIN = 14;
 const FONT_MAX = 72;
@@ -70,7 +71,8 @@ async function showList() {
   const query = sessionStorage.getItem('query') ?? '';
   main.innerHTML = `
     <input class="search" type="search" placeholder="曲名・アーティスト・キーで検索" value="${esc(query)}" aria-label="検索">
-    <ul class="song-list"></ul>`;
+    <ul class="song-list"></ul>
+    ${sourceLink(REPO_URL, 'ソースコード（GitHub）')}`;
   const input = main.querySelector('.search');
   const ul = main.querySelector('.song-list');
   const render = () => {
@@ -96,6 +98,9 @@ async function showList() {
   });
   render();
 }
+
+const sourceLink = (url, label) =>
+  `<p class="source-link"><a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a></p>`;
 
 const songId = (file) => file.replace(/^songs\//, '').replace(/\.md$/, '');
 
@@ -187,7 +192,8 @@ function renderSong() {
     ${meta ? `<div class="song-meta">${meta}</div>` : ''}
     ${strip ? `<div class="chord-strip">${strip}</div>` : ''}
     ${knownList}
-    ${sections}`;
+    ${sections}
+    ${sourceLink(`${REPO_URL}/blob/main/${current.file.split('/').map(encodeURIComponent).join('/')}`, 'この曲のファイル（GitHub）')}`;
 
   fitBeats();
   const value = $('#tr-value');
