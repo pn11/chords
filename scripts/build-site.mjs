@@ -16,6 +16,10 @@ for (const name of ['index.html', 'manifest.webmanifest', 'assets', 'data', 'son
   await cp(path.join(root, name), path.join(out, name), { recursive: true });
 }
 
+// GitHub Pages は存在しないパス（/song/<曲>）に 404.html を返すので、
+// 中身を index.html と同じにして、そこからアプリを起動する
+await cp(path.join(root, 'index.html'), path.join(out, '404.html'));
+
 const build = (process.env.GITHUB_SHA ?? Date.now().toString(36)).slice(0, 12);
 const sw = await readFile(path.join(root, 'sw.js'), 'utf8');
 await writeFile(path.join(out, 'sw.js'), sw.replace('__BUILD__', build));

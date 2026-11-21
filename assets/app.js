@@ -84,7 +84,7 @@ async function showList() {
     ul.innerHTML = hits.length
       ? hits
           .map(
-            (s) => `<li><a href="#/song/${encodeURIComponent(songId(s.file))}">
+            (s) => `<li><a href="song/${encodeURIComponent(songId(s.file))}">
               <span class="title">${esc(s.title)}${s.artist ? `<span class="artist">${esc(s.artist)}</span>` : ''}</span>
               <span class="key">${s.key ? `key: ${esc(s.key)}` : ''}${s.capo && s.capo !== '0' ? ` capo: ${esc(s.capo)}` : ''}</span>
             </a></li>`,
@@ -483,13 +483,34 @@ function setChrome({ title, back, toolbar }) {
   if (!toolbar) current = null;
 }
 
+// ---------- ルーティング（History API） ----------
+// サイトの根元（<base>）からの相対パスで画面を決める: "" → 曲一覧、"song/<曲>" → 曲
+
+const basePath = new URL(document.baseURI).pathname;
+
 function route() {
-  const m = location.hash.match(/^#\/song\/(.+)$/);
+  // 以前の #/song/<曲> 形式の URL は新しい形に読み替える
+  const old = location.hash.match(/^#\/song\/(.+)$/);
+  if (old) history.replaceState(null, '', `${basePath}song/${old[1]}`);
+  else if (location.hash === '#/') history.replaceState(null, '', basePath);
+
+  const m = location.pathname.slice(basePath.length).match(/^song\/([^/]+)$/);
   if (m) showSong(decodeURIComponent(m[1]));
   else showList();
 }
 
-window.addEventListener('hashchange', route);
+// サイト内のリンクはページを読み直さずに切り替える
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[href]');
+  if (!a || a.target || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const url = new URL(a.href);
+  if (url.origin !== location.origin || !url.pathname.startsWith(basePath)) return;
+  e.preventDefault();
+  if (url.href !== location.href) history.pushState(null, '', url.href);
+  route();
+});
+
+window.addEventListener('popstate', route);
 applyFontSize();
 route();
 

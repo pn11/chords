@@ -39,7 +39,7 @@ D/F# = 2x0232
 - コード名の表記ゆれ（`M7` / `maj7` / `△7`、`m7-5` / `m7b5` など）はある程度吸収する
 - `N.C.` などコードとして読めないものは、そのまま文字で表示する
 
-ファイル名は英数字とハイフン推奨（例: `songs/artist-title.md`）。URL は `#/song/artist-title` になる。
+ファイル名は英数字とハイフン推奨（例: `songs/artist-title.md`）。URL は `https://pn11.github.io/chords/song/artist-title` になる（以前の `#/song/…` 形式のリンクも開ける）。
 
 ## ビューアの機能
 

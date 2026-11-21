@@ -2,6 +2,14 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
+  <script>
+    // URL は /chords/song/<曲> の形。どの深さで開いても assets/ などを
+    // サイトの根元から読めるよう、/song/ より前を基準にする。
+    (function () {
+      var p = location.pathname, i = p.indexOf('/song/');
+      document.write('<base href="' + (i >= 0 ? p.slice(0, i + 1) : p.replace(/[^/]*$/, '')) + '">');
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Chords</title>
   <meta name="description" content="ギターのコード譜ビューア">
@@ -16,7 +24,7 @@
 </head>
 <body>
   <header class="topbar">
-    <a href="#/" class="back" id="back" hidden aria-label="曲一覧へ戻る">‹</a>
+    <a href="./" class="back" id="back" hidden aria-label="曲一覧へ戻る">‹</a>
     <h1 id="page-title">Chords</h1>
   </header>
   <main id="main"></main>
