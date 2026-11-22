@@ -231,18 +231,27 @@ button.beat:active { background: var(--accent-soft); }
   color: var(--accent);
   font-size: calc(var(--chord-size) * .6);
 }
-/* タブ譜: 等幅でそのまま。はみ出す分は横スクロール */
+/* タブ譜: SVG で描く。はみ出す分は横スクロール */
 .tab {
   margin: 4px 0 10px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   overflow-x: auto;
   background: var(--surface);
   border: 1.5px solid var(--bar-line);
   border-radius: 6px;
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Noto Sans Mono", monospace;
-  font-size: max(13px, calc(var(--chord-size) * .55));
-  line-height: 1.35;
+  font-size: max(15px, calc(var(--chord-size) * .62));
 }
+.tab-svg { display: block; height: auto; font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Noto Sans Mono", monospace; }
+.t-string { stroke: var(--bar-line); stroke-width: 1; }
+.t-bar { stroke: var(--bar-line); stroke-width: 1.5; }
+.t-bg { fill: var(--surface); }
+.t-num { fill: var(--text); font-size: 14px; font-weight: 700; font-family: system-ui, sans-serif; }
+.t-name { fill: var(--muted); font-size: 11px; }
+.t-tech { fill: var(--muted); font-size: 10px; font-weight: 600; font-family: system-ui, sans-serif; }
+.t-slide { stroke: var(--text); stroke-width: 1.6; }
+.t-arc { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+.t-text { fill: var(--muted); font-size: 13px; }
+.t-note { fill: var(--accent); font-size: 13px; font-weight: 700; font-family: system-ui, sans-serif; }
 .note {
   margin: 4px 0 8px;
   padding-left: 10px;

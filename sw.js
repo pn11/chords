@@ -10,6 +10,7 @@ const SHELL_FILES = [
   'assets/app.js',
   'assets/parser.js',
   'assets/chords.js',
+  'assets/tab.js',
   'assets/style.css',
   'assets/icon.svg',
   'assets/icon-192.png',

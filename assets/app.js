@@ -1,5 +1,6 @@
 import { parseSong, isChord, chordsInSong, transposeChord, transposeKey, keyUsesFlats } from './parser.js';
 import { loadChordDb, findShapes, diagramSvg, fretsLabel, chordId } from './chords.js';
+import { tabSvg } from './tab.js';
 
 const SONG_CACHE = 'songs';
 const REPO_URL = 'https://github.com/pn11/chords';
@@ -180,7 +181,7 @@ function renderSong() {
           item.type === 'note'
             ? `<div class="note">${esc(item.text)}</div>`
             : item.type === 'tab'
-              ? `<pre class="tab">${esc(item.lines.join('\n'))}</pre>`
+              ? `<div class="tab">${tabSvg(item.lines)}</div>`
               : renderRow(item, cols, repeatCol, name, ctx),
         )
         .join('');
